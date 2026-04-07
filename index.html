@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frequency — Authentic Relating</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #080C14;
+            --bg2: #0D1420;
+            --surface: #111827;
+            --surface2: #1a2436;
+            --border: rgba(255,255,255,0.07);
+            --teal: #4ECDC4;
+            --teal-dim: rgba(78,205,196,0.15);
+            --teal-glow: rgba(78,205,196,0.4);
+            --purple: #A78BFA;
+            --purple-dim: rgba(167,139,250,0.15);
+            --purple-glow: rgba(167,139,250,0.4);
+            --rose: #F472B6;
+            --rose-dim: rgba(244,114,182,0.15);
+            --rose-glow: rgba(244,114,182,0.4);
+            --text: #E2E8F0;
+            --text-dim: #64748B;
+            --text-mid: #94A3B8;
+        }
+
+        body {
+            font-family: 'EB Garamond', Georgia, serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #waveCanvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0.25; pointer-events: none; z-index: 0;
+        }
+
+        .container {
+            max-width: 760px; margin: 0 auto;
+            padding: 2rem 1.5rem; position: relative; z-index: 1;
+        }
+
+        /* ── Header ── */
+        .header { text-align: center; padding: 3rem 0 2rem; }
+
+        .header-eyebrow {
+            font-family: 'Space Mono', monospace; font-size: 0.7rem;
+            letter-spacing: 0.25em; color: var(--teal);
+            text-transform: uppercase; margin-bottom: 1rem; opacity: 0.8;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.8rem, 8vw, 4.5rem);
+            font-weight: 700; letter-spacing: 0.15em;
+            background: linear-gradient(135deg, #4ECDC4 0%, #A78BFA 60%, #F472B6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.75rem; line-height: 1.1;
+        }
+
+        .header-sub {
+            font-family: 'EB Garamond', serif; font-style: italic;
+            font-size: 1.15rem; color: var(--text-mid); letter-spacing: 0.03em;
+        }
+
+        /* ── Divider ── */
+        .divider { display: flex; align-items: center; gap: 1rem; margin: 2rem 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .divider-symbol { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.2em; }
+
+        /* ── Depth Selector ── */
+        .depth-selector {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1rem; margin-bottom: 2.5rem;
+        }
+
+        .depth-btn {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 1.5rem 1rem; cursor: pointer;
+            transition: all 0.3s ease; text-align: center; position: relative; overflow: hidden;
+        }
+
+        .depth-btn::before {
+            content: ''; position: absolute; inset: 0; opacity: 0;
+            transition: opacity 0.3s ease; border-radius: 16px;
+        }
+
+        .depth-btn.noticing::before { background: var(--teal-dim); }
+        .depth-btn.sharing::before { background: var(--purple-dim); }
+        .depth-btn.risking::before { background: var(--rose-dim); }
+
+        .depth-btn:hover::before, .depth-btn.active::before { opacity: 1; }
+
+        .depth-btn.noticing:hover, .depth-btn.noticing.active {
+            border-color: var(--teal); box-shadow: 0 0 20px var(--teal-glow);
+        }
+        .depth-btn.sharing:hover, .depth-btn.sharing.active {
+            border-color: var(--purple); box-shadow: 0 0 20px var(--purple-glow);
+        }
+        .depth-btn.risking:hover, .depth-btn.risking.active {
+            border-color: var(--rose); box-shadow: 0 0 20px var(--rose-glow);
+        }
+
+        .depth-icon {
+            font-size: 1.6rem; margin-bottom: 0.6rem;
+            position: relative; z-index: 1; line-height: 1;
+        }
+
+        .depth-label {
+            font-family: 'Space Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-bottom: 0.35rem; position: relative; z-index: 1;
+        }
+
+        .depth-btn.noticing .depth-label { color: var(--teal); }
+        .depth-btn.sharing .depth-label { color: var(--purple); }
+        .depth-btn.risking .depth-label { color: var(--rose); }
+
+        .depth-desc {
+            font-family: 'EB Garamond', serif; font-style: italic;
+            font-size: 0.85rem; color: var(--text-dim);
+            position: relative; z-index: 1; line-height: 1.4;
+        }
+
+        /* ── Mode Selector ── */
+        .mode-selector {
+            display: flex; gap: 0.5rem; justify-content: center;
+            margin-bottom: 2.5rem; flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            font-family: 'Space Mono', monospace; font-size: 0.65rem;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            padding: 0.65rem 1.5rem; border-radius: 50px; cursor: pointer;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-dim); transition: all 0.25s ease;
+        }
+
+        .mode-btn:hover { color: var(--text-mid); border-color: rgba(255,255,255,0.2); }
+
+        .mode-btn.active { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+        .mode-btn.active.sharing-mode { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+        .mode-btn.active.risking-mode { border-color: var(--rose); color: var(--rose); background: var(--rose-dim); }
+
+        .mode-icon { display: inline-block; margin-right: 0.4rem; font-size: 0.85rem; vertical-align: middle; }
+
+        /* ── Interaction Area ── */
+        .interaction-area {
+            min-height: 380px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; position: relative;
+        }
+
+        .idle-message {
+            text-align: center; color: var(--text-dim);
+            font-style: italic; font-size: 1.05rem; padding: 3rem;
+        }
+        .idle-message .idle-icon { font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
+
+        /* ── Card flip ── */
+        .card-scene {
+            width: 100%; max-width: 560px; height: 320px;
+            perspective: 1000px; animation: fadeIn 0.5s ease;
+        }
+
+        .card-inner {
+            position: relative; width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-inner.flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            position: absolute; inset: 0; border-radius: 20px;
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 2.5rem;
+        }
+
+        .card-back {
+            background: var(--surface); border: 1px solid var(--border); cursor: pointer;
+        }
+        .card-back-content { text-align: center; }
+        .card-back-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
+        .card-back-text {
+            font-family: 'Space Mono', monospace; font-size: 0.65rem;
+            letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-dim);
+        }
+        .tap-hint {
+            font-family: 'EB Garamond', serif; font-style: italic;
+            font-size: 0.9rem; color: var(--text-dim); margin-top: 1rem; opacity: 0.6;
+        }
+
+        .card-front { transform: rotateY(180deg); text-align: center; }
+
+        .card-front.noticing-card {
+            background: linear-gradient(135deg, #0D1F2D, #0a1a28);
+            border: 1px solid rgba(78,205,196,0.3); box-shadow: 0 0 40px rgba(78,205,196,0.1);
+        }
+        .card-front.sharing-card {
+            background: linear-gradient(135deg, #160d2e, #120b26);
+            border: 1px solid rgba(167,139,250,0.3); box-shadow: 0 0 40px rgba(167,139,250,0.1);
+        }
+        .card-front.risking-card {
+            background: linear-gradient(135deg, #1f0d1a, #180a14);
+            border: 1px solid rgba(244,114,182,0.3); box-shadow: 0 0 40px rgba(244,114,182,0.1);
+        }
+
+        .card-depth-tag {
+            font-family: 'Space Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-bottom: 1.5rem; opacity: 0.7;
+        }
+        .noticing-card .card-depth-tag { color: var(--teal); }
+        .sharing-card .card-depth-tag { color: var(--purple); }
+        .risking-card .card-depth-tag { color: var(--rose); }
+
+        .card-prompt {
+            font-family: 'EB Garamond', serif;
+            font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+            line-height: 1.65; color: var(--text); font-weight: 400;
+        }
+
+        .card-counter {
+            font-family: 'Space Mono', monospace; font-size: 0.6rem;
+            color: var(--text-dim); margin-top: 1.5rem; letter-spacing: 0.1em;
+        }
+
+        /* ── Controls ── */
+        .controls {
+            display: flex; gap: 0.75rem; justify-content: center;
+            margin-top: 1.75rem; flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: 'Space Mono', monospace; font-size: 0.7rem;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            padding: 0.75rem 1.75rem; border-radius: 50px; cursor: pointer;
+            border: 1px solid transparent; transition: all 0.25s ease;
+        }
+
+        .btn-primary { background: transparent; color: var(--teal); border-color: var(--teal); }
+        .btn-primary:hover { background: var(--teal); color: var(--bg); box-shadow: 0 0 20px var(--teal-glow); }
+        .btn-primary.sharing-mode { color: var(--purple); border-color: var(--purple); }
+        .btn-primary.sharing-mode:hover { background: var(--purple); color: var(--bg); box-shadow: 0 0 20px var(--purple-glow); }
+        .btn-primary.risking-mode { color: var(--rose); border-color: var(--rose); }
+        .btn-primary.risking-mode:hover { background: var(--rose); color: var(--bg); box-shadow: 0 0 20px var(--rose-glow); }
+
+        .btn-pass { background: transparent; color: var(--text-dim); border-color: var(--border); }
+        .btn-pass:hover { color: var(--text-mid); border-color: rgba(255,255,255,0.2); }
+
+        /* ── Result panels (shared by spinner, dice) ── */
+        .result-panel {
+            margin-top: 1.5rem; display: none; padding: 2rem 2.5rem;
+            text-align: center; animation: fadeIn 0.4s ease; border-radius: 16px;
+            max-width: 560px; margin-left: auto; margin-right: auto;
+        }
+        .result-panel.show { display: block; }
+
+        .result-panel.noticing {
+            background: linear-gradient(135deg, #0D1F2D, #0a1a28);
+            border: 1px solid rgba(78,205,196,0.3); box-shadow: 0 0 40px rgba(78,205,196,0.1);
+        }
+        .result-panel.sharing {
+            background: linear-gradient(135deg, #160d2e, #120b26);
+            border: 1px solid rgba(167,139,250,0.3); box-shadow: 0 0 40px rgba(167,139,250,0.1);
+        }
+        .result-panel.risking {
+            background: linear-gradient(135deg, #1f0d1a, #180a14);
+            border: 1px solid rgba(244,114,182,0.3); box-shadow: 0 0 40px rgba(244,114,182,0.1);
+        }
+
+        .result-tag {
+            font-family: 'Space Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-bottom: 1rem; opacity: 0.7;
+        }
+        .result-prompt {
+            font-family: 'EB Garamond', serif;
+            font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+            line-height: 1.65; color: var(--text);
+        }
+
+        /* ── Spinner Wheel ── */
+        .wheel-area { text-align: center; animation: fadeIn 0.5s ease; }
+        .wheel-box { display: inline-block; position: relative; width: 300px; height: 300px; }
+        .wheel-svg { width: 100%; height: 100%; }
+        .wheel-pointer {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 14px solid transparent; border-right: 14px solid transparent; z-index: 2;
+        }
+        .wheel-pointer.noticing { border-top: 22px solid var(--teal); }
+        .wheel-pointer.sharing { border-top: 22px solid var(--purple); }
+        .wheel-pointer.risking { border-top: 22px solid var(--rose); }
+
+        /* ── Dice ── */
+        .dice-area { text-align: center; animation: fadeIn 0.5s ease; }
+        .dice-container { perspective: 600px; display: inline-block; width: 140px; height: 140px; margin-bottom: 1.5rem; }
+        .dice-cube {
+            width: 100%; height: 100%; position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.8s cubic-bezier(0.17,0.67,0.12,0.99);
+        }
+        .dice-face {
+            position: absolute; width: 140px; height: 140px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Cinzel', serif; font-size: 3rem; font-weight: 700;
+            backface-visibility: hidden;
+        }
+        .dice-face.noticing { background: linear-gradient(135deg, #0D1F2D, #0a1a28); border: 2px solid rgba(78,205,196,0.4); color: var(--teal); box-shadow: inset 0 0 30px rgba(78,205,196,0.1); }
+        .dice-face.sharing { background: linear-gradient(135deg, #160d2e, #120b26); border: 2px solid rgba(167,139,250,0.4); color: var(--purple); box-shadow: inset 0 0 30px rgba(167,139,250,0.1); }
+        .dice-face.risking { background: linear-gradient(135deg, #1f0d1a, #180a14); border: 2px solid rgba(244,114,182,0.4); color: var(--rose); box-shadow: inset 0 0 30px rgba(244,114,182,0.1); }
+
+        .dice-face:nth-child(1) { transform: rotateY(0deg) translateZ(70px); }
+        .dice-face:nth-child(2) { transform: rotateY(90deg) translateZ(70px); }
+        .dice-face:nth-child(3) { transform: rotateY(180deg) translateZ(70px); }
+        .dice-face:nth-child(4) { transform: rotateY(-90deg) translateZ(70px); }
+        .dice-face:nth-child(5) { transform: rotateX(90deg) translateZ(70px); }
+        .dice-face:nth-child(6) { transform: rotateX(-90deg) translateZ(70px); }
+
+        /* ── Tarot Spread ── */
+        .spread-area { animation: fadeIn 0.5s ease; }
+        .spread-instruction {
+            text-align: center; font-family: 'Space Mono', monospace;
+            font-size: 0.65rem; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 1.25rem;
+        }
+        .tarot-spread { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+        .tarot-card { width: 108px; height: 185px; perspective: 800px; cursor: pointer; flex-shrink: 0; }
+        .tarot-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .tarot-card.flipped .tarot-inner { transform: rotateY(180deg); }
+        .tarot-card.active .tarot-inner { filter: drop-shadow(0 0 12px var(--teal-glow)); }
+        .tarot-card.active.sharing-mode .tarot-inner { filter: drop-shadow(0 0 12px var(--purple-glow)); }
+        .tarot-card.active.risking-mode .tarot-inner { filter: drop-shadow(0 0 12px var(--rose-glow)); }
+
+        .tarot-back, .tarot-front {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; text-align: center; flex-direction: column;
+        }
+        .tarot-back {
+            background: var(--surface2);
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3),
+                        inset 0 0 0 6px var(--surface2), inset 0 0 0 7px rgba(255,255,255,0.08);
+            gap: 0.5rem;
+        }
+        .tarot-back .back-glyph { font-size: 1.8rem; opacity: 0.3; line-height: 1; }
+        .tarot-back.noticing .back-glyph { color: var(--teal); }
+        .tarot-back.sharing .back-glyph { color: var(--purple); }
+        .tarot-back.risking .back-glyph { color: var(--rose); }
+
+        .tarot-back .back-label {
+            font-family: 'Space Mono', monospace; font-size: 0.42rem; font-weight: 600;
+            letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); opacity: 0.5;
+        }
+        .tarot-back .back-line-t, .tarot-back .back-line-b {
+            position: absolute; left: 14px; right: 14px; height: 1px; opacity: 0.3;
+        }
+        .tarot-back.noticing .back-line-t, .tarot-back.noticing .back-line-b { background: var(--teal); }
+        .tarot-back.sharing .back-line-t, .tarot-back.sharing .back-line-b { background: var(--purple); }
+        .tarot-back.risking .back-line-t, .tarot-back.risking .back-line-b { background: var(--rose); }
+        .tarot-back .back-line-t { top: 16px; }
+        .tarot-back .back-line-b { bottom: 16px; }
+
+        .tarot-back .back-corner { position: absolute; width: 6px; height: 6px; opacity: 0.3; }
+        .tarot-back.noticing .back-corner { border-color: var(--teal); }
+        .tarot-back.sharing .back-corner { border-color: var(--purple); }
+        .tarot-back.risking .back-corner { border-color: var(--rose); }
+        .tarot-back .bc-tl { top: 12px; left: 10px; border-top: 1px solid; border-left: 1px solid; border-color: inherit; }
+        .tarot-back .bc-tr { top: 12px; right: 10px; border-top: 1px solid; border-right: 1px solid; border-color: inherit; }
+        .tarot-back .bc-bl { bottom: 12px; left: 10px; border-bottom: 1px solid; border-left: 1px solid; border-color: inherit; }
+        .tarot-back .bc-br { bottom: 12px; right: 10px; border-bottom: 1px solid; border-right: 1px solid; border-color: inherit; }
+
+        .tarot-front {
+            transform: rotateY(180deg); border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12); padding: 0.75rem; justify-content: center;
+        }
+        .tarot-front.noticing { background: linear-gradient(135deg, #0D1F2D, #0a1a28); border-color: rgba(78,205,196,0.3); }
+        .tarot-front.sharing { background: linear-gradient(135deg, #160d2e, #120b26); border-color: rgba(167,139,250,0.3); }
+        .tarot-front.risking { background: linear-gradient(135deg, #1f0d1a, #180a14); border-color: rgba(244,114,182,0.3); }
+
+        .tarot-front .front-num {
+            font-family: 'Space Mono', monospace; font-size: 0.5rem;
+            letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem;
+        }
+        .tarot-front.noticing .front-num { color: var(--teal); }
+        .tarot-front.sharing .front-num { color: var(--purple); }
+        .tarot-front.risking .front-num { color: var(--rose); }
+        .tarot-front .front-prompt { font-family: 'EB Garamond', serif; font-size: 0.72rem; line-height: 1.5; color: var(--text); }
+
+        /* ── Completion ── */
+        .completion-message {
+            text-align: center; padding: 3rem 2rem;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+        }
+        .completion-message h2 {
+            font-family: 'Cinzel', serif; font-size: 1.5rem; letter-spacing: 0.1em; margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #4ECDC4, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .completion-message p { color: var(--text-mid); font-style: italic; font-size: 1.05rem; line-height: 1.65; }
+
+        /* ── Facilitation Notes ── */
+        .facil-toggle { text-align: center; margin: 2.5rem 0 1rem; }
+        .facil-toggle-btn {
+            font-family: 'Space Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim);
+            background: none; border: none; cursor: pointer; padding: 0.5rem 1rem;
+            border-bottom: 1px dashed var(--border); transition: color 0.2s ease;
+        }
+        .facil-toggle-btn:hover { color: var(--text-mid); }
+
+        .facil-panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 2rem; margin-top: 1rem;
+            display: none; animation: fadeIn 0.4s ease;
+        }
+        .facil-panel.open { display: block; }
+        .facil-panel h3 {
+            font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 0.12em;
+            color: var(--teal); margin-bottom: 1.25rem; text-transform: uppercase;
+        }
+        .facil-section { margin-bottom: 1.5rem; }
+        .facil-section h4 {
+            font-family: 'Space Mono', monospace; font-size: 0.65rem;
+            letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.6rem;
+        }
+        .facil-section p, .facil-section li { font-size: 0.95rem; color: var(--text-mid); line-height: 1.7; }
+        .facil-section ul { list-style: none; padding-left: 0; }
+        .facil-section ul li::before { content: '\2014 '; color: var(--text-dim); }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center; padding: 3rem 0 2rem;
+            font-family: 'Space Mono', monospace; font-size: 0.6rem;
+            letter-spacing: 0.15em; color: var(--text-dim); opacity: 0.5;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes diceShake {
+            0%, 100% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            10% { transform: rotateX(40deg) rotateY(-30deg) rotateZ(20deg); }
+            20% { transform: rotateX(-30deg) rotateY(45deg) rotateZ(-15deg); }
+            30% { transform: rotateX(50deg) rotateY(20deg) rotateZ(30deg); }
+            40% { transform: rotateX(-20deg) rotateY(-50deg) rotateZ(-25deg); }
+            50% { transform: rotateX(35deg) rotateY(40deg) rotateZ(10deg); }
+            60% { transform: rotateX(-45deg) rotateY(-25deg) rotateZ(20deg); }
+            70% { transform: rotateX(25deg) rotateY(35deg) rotateZ(-30deg); }
+            80% { transform: rotateX(-35deg) rotateY(-40deg) rotateZ(15deg); }
+            90% { transform: rotateX(15deg) rotateY(25deg) rotateZ(-10deg); }
+        }
+        .dice-cube.rolling { animation: diceShake 0.6s ease-in-out infinite; }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .depth-selector { grid-template-columns: 1fr; }
+            .card-scene { height: 280px; }
+            .card-face { padding: 1.75rem; }
+            .mode-selector { flex-wrap: wrap; }
+            .wheel-box { width: 260px; height: 260px; }
+            .dice-container { width: 110px; height: 110px; }
+            .dice-face { width: 110px; height: 110px; font-size: 2.5rem; }
+            .dice-face:nth-child(1) { transform: rotateY(0deg) translateZ(55px); }
+            .dice-face:nth-child(2) { transform: rotateY(90deg) translateZ(55px); }
+            .dice-face:nth-child(3) { transform: rotateY(180deg) translateZ(55px); }
+            .dice-face:nth-child(4) { transform: rotateY(-90deg) translateZ(55px); }
+            .dice-face:nth-child(5) { transform: rotateX(90deg) translateZ(55px); }
+            .dice-face:nth-child(6) { transform: rotateX(-90deg) translateZ(55px); }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="waveCanvas"></canvas>
+
+<div class="container">
+
+    <div class="header">
+        <p class="header-eyebrow">Authentic Relating</p>
+        <h1>Frequency</h1>
+        <p class="header-sub">What signal are you actually sending?</p>
+    </div>
+
+    <div class="divider"><span class="divider-symbol">&sim;</span></div>
+
+    <!-- Depth Selector -->
+    <div class="depth-selector">
+        <button class="depth-btn noticing" onclick="selectDepth('noticing')">
+            <div class="depth-icon">&#9678;</div>
+            <div class="depth-label">Noticing</div>
+            <div class="depth-desc">What you observe<br>what catches your eye</div>
+        </button>
+        <button class="depth-btn sharing" onclick="selectDepth('sharing')">
+            <div class="depth-icon">&#9827;</div>
+            <div class="depth-label">Sharing</div>
+            <div class="depth-desc">What you're feeling<br>what's actually here</div>
+        </button>
+        <button class="depth-btn risking" onclick="selectDepth('risking')">
+            <div class="depth-icon">&#9830;</div>
+            <div class="depth-label">Risking</div>
+            <div class="depth-desc">What's hard to say<br>what changes things</div>
+        </button>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="mode-selector" id="modeSelector" style="display:none;">
+        <button class="mode-btn active" onclick="selectMode('card', this)">
+            <span class="mode-icon">&#9830;</span> Card
+        </button>
+        <button class="mode-btn" onclick="selectMode('spinner', this)">
+            <span class="mode-icon">&#10047;</span> Spinner
+        </button>
+        <button class="mode-btn" onclick="selectMode('dice', this)">
+            <span class="mode-icon">&#9860;</span> Dice
+        </button>
+        <button class="mode-btn" onclick="selectMode('spread', this)">
+            <span class="mode-icon">&#9827;</span> Spread
+        </button>
+    </div>
+
+    <!-- Interaction Area -->
+    <div class="interaction-area" id="interactionArea">
+        <div class="idle-message">
+            <span class="idle-icon">&sim;</span>
+            Choose a depth above to begin
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls" id="controls" style="display:none;">
+        <button class="btn btn-primary" id="actionBtn" onclick="doAction()">Draw Card</button>
+        <button class="btn btn-pass" onclick="doPass()">Pass</button>
+        <button class="btn btn-pass" onclick="doReset()">Reshuffle</button>
+    </div>
+
+    <!-- Facilitation Notes -->
+    <div class="facil-toggle">
+        <button class="facil-toggle-btn" onclick="toggleFacil()">+ Facilitation Notes</button>
+    </div>
+
+    <div class="facil-panel" id="facilPanel">
+        <h3>Facilitator Guide</h3>
+        <div class="facil-section">
+            <h4>Purpose</h4>
+            <p>Frequency is a prompt-based authentic relating tool designed to warm up expression, reduce social armor, and create genuine moments of connection. Works as an opening activity, mid-session shift, or standalone group experience.</p>
+        </div>
+        <div class="facil-section">
+            <h4>How to Run It</h4>
+            <ul>
+                <li>Choose a depth together as a group, or let individuals choose</li>
+                <li>Pick a mode: Card (one at a time), Spinner (random wheel), Dice (roll for it), or Spread (5-card tarot layout)</li>
+                <li>One person draws/spins/rolls and reads the prompt aloud</li>
+                <li>They respond briefly or at length, whatever feels right</li>
+                <li>Others can respond to the same prompt or move to the next</li>
+                <li>Pass is always available, no explanation needed</li>
+            </ul>
+        </div>
+        <div class="facil-section">
+            <h4>Depth Guide</h4>
+            <ul>
+                <li><strong style="color:#4ECDC4;">Noticing</strong> &mdash; What you observe. Best for new groups or warming up. Low stakes, high connection.</li>
+                <li><strong style="color:#A78BFA;">Sharing</strong> &mdash; What you're actually feeling. For groups with some trust. Invites real feelings without requiring deep vulnerability.</li>
+                <li><strong style="color:#F472B6;">Risking</strong> &mdash; What's hard to say out loud. Reserve for groups with strong cohesion. Model vulnerability yourself first.</li>
+            </ul>
+        </div>
+        <div class="facil-section">
+            <h4>Trauma-Informed Reminders</h4>
+            <ul>
+                <li>Pass is always valid &mdash; name it at the start and model it yourself if needed</li>
+                <li>No processing required after sharing &mdash; just receiving is enough</li>
+                <li>Witnessing silently is full participation</li>
+                <li>Watch for dysregulation at Risking depth &mdash; slow down, return to Noticing if needed</li>
+                <li>Closing grounding after Risking is recommended</li>
+            </ul>
+        </div>
+        <div class="facil-section">
+            <h4>Integration Prompts</h4>
+            <ul>
+                <li>What was it like to hear someone else's answer?</li>
+                <li>Was there a moment you felt less alone?</li>
+                <li>What made it easier or harder to share?</li>
+                <li>What do you want to carry out of this room today?</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">Frequency &middot; Authentic Relating &middot; Brian Nuckols CFD</div>
+
+</div>
+
+<script>
+// ── Prompt Data ──────────────────────────────────────
+const prompts = {
+    noticing: [
+        "What's a song that's been living rent-free in your head lately?",
+        "If your current mood was a type of weather, what would it be right now?",
+        "What's something small that actually made you feel good this week?",
+        "What's a random skill or thing you're good at that most people here don't know about?",
+        "What's something you're lowkey excited about right now?",
+        "If you could teleport anywhere for one hour today, where would you go?",
+        "What's a comfort thing \u2014 food, show, place, object \u2014 you always come back to?",
+        "What have you been into lately that you don't usually bring up?",
+        "What's one word that describes how you walked in here today?",
+        "What's something you've been looking forward to, even if it's really small?",
+        "What's a place that always makes you feel more like yourself?",
+        "What's something you do alone that you'd never do in front of most people?",
+    ],
+    sharing: [
+        "Something I wish people understood about me is...",
+        "A feeling I've been carrying lately that I haven't really said out loud...",
+        "When I pull away from people, it usually looks like...",
+        "Something I'm actually proud of that I don't talk about much...",
+        "A moment recently where I felt genuinely seen or understood...",
+        "Something I tend to hide when I first meet people...",
+        "What does real connection actually feel like in your body when it's happening?",
+        "A part of yourself that doesn't get enough airtime...",
+        "Something I want more of in my relationships but haven't found the words for...",
+        "Something true about me right now that most people in my life don't know...",
+        "When I'm feeling overwhelmed, I usually...",
+        "Something I've changed my mind about \u2014 about myself or about people...",
+    ],
+    risking: [
+        "Something I'm afraid to let people really see about me is...",
+        "A need I have in relationships that I struggle to ask for directly...",
+        "The version of myself I protect the most is...",
+        "Something I want someone in this room to actually know about me...",
+        "When I'm really struggling, what I actually need \u2014 but rarely ask for \u2014 is...",
+        "Something I've never said in a group like this but feel ready to try saying...",
+        "The way I usually disconnect from people when things get hard...",
+        "Something I long for that I've mostly kept to myself...",
+        "If I could ask for one thing from the people in my life right now, it would be...",
+        "A fear about being close to people that feels hard to say out loud...",
+        "Something I'm slowly learning to believe about myself...",
+        "What would it mean to actually be known \u2014 and what makes that scary?",
+    ]
+};
+
+// ── State ──────────────────────────────────────────
+let currentDepth = null;
+let currentMode = 'card';
+let deck = [];
+let currentCard = null;
+let cardRevealed = false;
+let spreadHand = [];
+
+// ── Color maps ──────────────────────────────────────
+const colorMap = {
+    noticing: { main: '#4ECDC4', r: 78, g: 205, b: 196 },
+    sharing:  { main: '#A78BFA', r: 167, g: 139, b: 250 },
+    risking:  { main: '#F472B6', r: 244, g: 114, b: 182 }
+};
+
+const labelMap = { noticing: 'Noticing', sharing: 'Sharing', risking: 'Risking' };
+const iconMap = { noticing: '\u25CE', sharing: '\u2663', risking: '\u2666' };
+
+// ── Wave Canvas ─────────────────────────────────────
+const canvas = document.getElementById('waveCanvas');
+const ctx = canvas.getContext('2d');
+let waveColor = { r: 78, g: 205, b: 196 };
+
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+function drawWaves(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const { r, g, b } = waveColor;
+    for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        const freq = 0.003 + i * 0.001, amp = 30 + i * 15;
+        const speed = 0.0005 + i * 0.0002, yOffset = canvas.height * (0.3 + i * 0.2);
+        ctx.moveTo(0, yOffset);
+        for (let x = 0; x < canvas.width; x++) {
+            ctx.lineTo(x, yOffset + Math.sin(x * freq + t * speed * 1000) * amp + Math.sin(x * freq * 1.5 + t * speed * 800) * (amp * 0.4));
+        }
+        ctx.strokeStyle = `rgba(${r},${g},${b},${0.12 - i * 0.03})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+}
+
+let startTime = performance.now();
+function animate() { drawWaves(performance.now() - startTime); requestAnimationFrame(animate); }
+resizeCanvas(); animate();
+window.addEventListener('resize', resizeCanvas);
+
+// ── Utility ─────────────────────────────────────────
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+}
+
+// ── Depth Selection ─────────────────────────────────
+function selectDepth(depth) {
+    currentDepth = depth;
+    deck = shuffle([...Array(prompts[depth].length).keys()]);
+    currentCard = null;
+    cardRevealed = false;
+
+    document.querySelectorAll('.depth-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.depth-btn.${depth}`).classList.add('active');
+
+    waveColor = { r: colorMap[depth].r, g: colorMap[depth].g, b: colorMap[depth].b };
+
+    const actionBtn = document.getElementById('actionBtn');
+    actionBtn.className = 'btn btn-primary';
+    if (depth === 'sharing') actionBtn.classList.add('sharing-mode');
+    else if (depth === 'risking') actionBtn.classList.add('risking-mode');
+
+    document.querySelectorAll('.mode-btn').forEach(b => {
+        b.classList.remove('sharing-mode', 'risking-mode');
+        if (b.classList.contains('active')) {
+            if (depth === 'sharing') b.classList.add('sharing-mode');
+            else if (depth === 'risking') b.classList.add('risking-mode');
+        }
+    });
+
+    document.getElementById('modeSelector').style.display = 'flex';
+    document.getElementById('controls').style.display = 'flex';
+
+    renderMode();
+}
+
+// ── Mode Selection ──────────────────────────────────
+function selectMode(mode, btn) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active', 'sharing-mode', 'risking-mode'));
+    btn.classList.add('active');
+    if (currentDepth === 'sharing') btn.classList.add('sharing-mode');
+    else if (currentDepth === 'risking') btn.classList.add('risking-mode');
+
+    const labels = { card: 'Draw Card', spinner: 'Spin', dice: 'Roll Dice', spread: 'Deal Spread' };
+    document.getElementById('actionBtn').textContent = labels[mode];
+    renderMode();
+}
+
+function renderMode() {
+    if (!currentDepth) return;
+    if (currentMode === 'card') drawCard();
+    else if (currentMode === 'spinner') renderSpinner();
+    else if (currentMode === 'dice') renderDice();
+    else if (currentMode === 'spread') dealSpread();
+}
+
+// ══════════════════════════════════════════════════════
+// CARD MODE
+// ══════════════════════════════════════════════════════
+function drawCard() {
+    if (!currentDepth) return;
+    if (deck.length === 0) { showCompletion(); return; }
+    const idx = deck.pop();
+    currentCard = prompts[currentDepth][idx];
+    cardRevealed = false;
+    showFaceDown();
+    loadCardFront();
+}
+
+function showFaceDown() {
+    const area = document.getElementById('interactionArea');
+    const color = colorMap[currentDepth].main;
+    area.innerHTML = `
+        <div class="card-scene" id="cardScene">
+            <div class="card-inner" id="cardInner">
+                <div class="card-face card-back" onclick="revealCard()">
+                    <div class="card-back-content">
+                        <div class="card-back-icon" style="color:${color}">${iconMap[currentDepth]}</div>
+                        <div class="card-back-text">${labelMap[currentDepth]}</div>
+                        <div class="tap-hint">tap to reveal</div>
+                    </div>
+                </div>
+                <div class="card-face card-front ${currentDepth}-card" id="cardFront"></div>
+            </div>
+        </div>`;
+}
+
+function loadCardFront() {
+    const front = document.getElementById('cardFront');
+    if (!front || currentCard === null) return;
+    const total = prompts[currentDepth].length;
+    const drawn = total - deck.length;
+    front.innerHTML = `
+        <div class="card-depth-tag">${labelMap[currentDepth]}</div>
+        <div class="card-prompt">${currentCard}</div>
+        <div class="card-counter">${drawn} / ${total}</div>`;
+}
+
+function revealCard() {
+    if (cardRevealed || currentCard === null) return;
+    loadCardFront();
+    document.getElementById('cardInner').classList.add('flipped');
+    cardRevealed = true;
+}
+
+function showCompletion() {
+    document.getElementById('interactionArea').innerHTML = `
+        <div class="completion-message">
+            <h2>Deck Complete</h2>
+            <p>You've moved through every prompt at this depth.<br>Reshuffle to go again, or shift to a new depth.</p>
+        </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// SPINNER MODE
+// ══════════════════════════════════════════════════════
+function renderSpinner() {
+    const area = document.getElementById('interactionArea');
+    const d = currentDepth;
+    const items = prompts[d];
+    const n = items.length;
+    const color = colorMap[d].main;
+    const r = 120, cx = 140, cy = 140, slice = 360 / n;
+    let paths = '';
+
+    for (let i = 0; i < n; i++) {
+        const opacity = i % 2 === 0 ? 0.08 : 0.15;
+        const fill = `rgba(${colorMap[d].r},${colorMap[d].g},${colorMap[d].b},${opacity})`;
+        const sa = i * slice - 90, ea = sa + slice;
+        const x1 = cx + r * Math.cos(sa * Math.PI / 180), y1 = cy + r * Math.sin(sa * Math.PI / 180);
+        const x2 = cx + r * Math.cos(ea * Math.PI / 180), y2 = cy + r * Math.sin(ea * Math.PI / 180);
+        paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z" fill="${fill}" stroke="${color}" stroke-width="0.5" stroke-opacity="0.3"/>`;
+        const ma = (sa + slice / 2) * Math.PI / 180;
+        const tx = cx + (r * 0.65) * Math.cos(ma), ty = cy + (r * 0.65) * Math.sin(ma);
+        paths += `<text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="700" fill="${color}" font-family="Space Mono, monospace" opacity="0.7">${i + 1}</text>`;
+    }
+
+    area.innerHTML = `
+        <div class="wheel-area">
+            <div class="wheel-box">
+                <div class="wheel-pointer ${d}"></div>
+                <svg class="wheel-svg" viewBox="0 0 280 280" id="wheelSvg">
+                    <g id="wheelGroup" style="transform-origin:140px 140px; transition: transform 4s cubic-bezier(0.17,0.67,0.12,0.99);">${paths}</g>
+                    <circle cx="140" cy="140" r="22" fill="${color}" fill-opacity="0.15" stroke="${color}" stroke-width="1.5" stroke-opacity="0.4"/>
+                    <text x="140" y="145" text-anchor="middle" font-size="10" font-weight="700" fill="${color}" font-family="Space Mono, monospace" letter-spacing="0.1em">SPIN</text>
+                </svg>
+            </div>
+        </div>
+        <div class="result-panel ${d}" id="resultPanel">
+            <div class="result-tag" style="color:${color}">${labelMap[d]}</div>
+            <div class="result-prompt" id="resultPrompt"></div>
+        </div>`;
+}
+
+function spinWheel() {
+    if (!currentDepth) return;
+    const btn = document.getElementById('actionBtn');
+    btn.disabled = true;
+    const items = prompts[currentDepth], n = items.length, slice = 360 / n;
+    const extra = 5 + Math.floor(Math.random() * 3);
+    const land = Math.floor(Math.random() * n);
+    const target = extra * 360 + (360 - land * slice - slice / 2);
+    document.getElementById('wheelGroup').style.transform = `rotate(${target}deg)`;
+    setTimeout(() => {
+        document.getElementById('resultPrompt').textContent = items[land];
+        const panel = document.getElementById('resultPanel');
+        panel.classList.remove('show'); void panel.offsetWidth; panel.classList.add('show');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        btn.disabled = false;
+    }, 4200);
+}
+
+// ══════════════════════════════════════════════════════
+// DICE MODE
+// ══════════════════════════════════════════════════════
+function renderDice() {
+    const area = document.getElementById('interactionArea');
+    const d = currentDepth, color = colorMap[d].main;
+    area.innerHTML = `
+        <div class="dice-area">
+            <div class="dice-container">
+                <div class="dice-cube" id="diceCube">
+                    <div class="dice-face ${d}">1</div><div class="dice-face ${d}">2</div>
+                    <div class="dice-face ${d}">3</div><div class="dice-face ${d}">4</div>
+                    <div class="dice-face ${d}">5</div><div class="dice-face ${d}">6</div>
+                </div>
+            </div>
+            <div style="text-align:center; margin-bottom:0.5rem;">
+                <span style="font-family:'Space Mono',monospace; font-size:0.6rem; color:var(--text-dim); letter-spacing:0.15em;">TAP ROLL OR HIT THE BUTTON</span>
+            </div>
+        </div>
+        <div class="result-panel ${d}" id="resultPanel">
+            <div class="result-tag" style="color:${color}">${labelMap[d]}</div>
+            <div class="result-prompt" id="resultPrompt"></div>
+        </div>`;
+}
+
+function rollDice() {
+    if (!currentDepth) return;
+    const btn = document.getElementById('actionBtn');
+    btn.disabled = true;
+    const cube = document.getElementById('diceCube');
+    const items = prompts[currentDepth];
+    const land = Math.floor(Math.random() * items.length);
+    const diceNum = (land % 6) + 1;
+    cube.classList.add('rolling');
+
+    const faceRot = { 1:{x:0,y:0}, 2:{x:0,y:-90}, 3:{x:0,y:180}, 4:{x:0,y:90}, 5:{x:-90,y:0}, 6:{x:90,y:0} };
+
+    setTimeout(() => {
+        cube.classList.remove('rolling');
+        const rot = faceRot[diceNum];
+        const ex = (3 + Math.floor(Math.random() * 2)) * 360;
+        const ey = (3 + Math.floor(Math.random() * 2)) * 360;
+        cube.style.transition = 'transform 1.5s cubic-bezier(0.17,0.67,0.12,0.99)';
+        cube.style.transform = `rotateX(${ex + rot.x}deg) rotateY(${ey + rot.y}deg)`;
+        setTimeout(() => {
+            document.getElementById('resultPrompt').textContent = items[land];
+            const panel = document.getElementById('resultPanel');
+            panel.classList.remove('show'); void panel.offsetWidth; panel.classList.add('show');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            btn.disabled = false;
+        }, 1800);
+    }, 800);
+}
+
+// ══════════════════════════════════════════════════════
+// SPREAD MODE
+// ══════════════════════════════════════════════════════
+function dealSpread() {
+    const area = document.getElementById('interactionArea');
+    const d = currentDepth, color = colorMap[d].main;
+    const items = prompts[d];
+    const indices = shuffle([...Array(items.length).keys()]).slice(0, 5);
+    spreadHand = indices.map(i => items[i]);
+
+    const glyphs = ['\u25C8', '\u25CE', '\u25C7', '\u25C6', '\u2726'];
+    const modeClass = d === 'sharing' ? 'sharing-mode' : d === 'risking' ? 'risking-mode' : '';
+
+    let cardsHTML = '';
+    spreadHand.forEach((prompt, i) => {
+        const short = prompt.length > 60 ? prompt.substring(0, 57) + '...' : prompt;
+        cardsHTML += `
+        <div class="tarot-card ${modeClass}" onclick="flipSpreadCard(this, ${i})">
+            <div class="tarot-inner">
+                <div class="tarot-back ${d}">
+                    <div class="back-line-t"></div><div class="back-line-b"></div>
+                    <div class="back-corner bc-tl"></div><div class="back-corner bc-tr"></div>
+                    <div class="back-corner bc-bl"></div><div class="back-corner bc-br"></div>
+                    <span class="back-glyph">${glyphs[i]}</span>
+                    <span class="back-label">Frequency</span>
+                </div>
+                <div class="tarot-front ${d}">
+                    <div class="front-num">${labelMap[d]} &middot; ${i + 1}</div>
+                    <div class="front-prompt">${short}</div>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    area.innerHTML = `
+        <div class="spread-area">
+            <div class="spread-instruction">Tap a card to reveal it. The full prompt appears below.</div>
+            <div class="tarot-spread" id="tarotSpread">${cardsHTML}</div>
+        </div>
+        <div class="result-panel ${d}" id="resultPanel">
+            <div class="result-tag" style="color:${color}">${labelMap[d]}</div>
+            <div class="result-prompt" id="resultPrompt"></div>
+        </div>`;
+}
+
+function flipSpreadCard(el, idx) {
+    if (el.classList.contains('flipped')) { showSpreadReading(idx); return; }
+    el.classList.add('flipped');
+    document.querySelectorAll('.tarot-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    setTimeout(() => showSpreadReading(idx), 350);
+}
+
+function showSpreadReading(idx) {
+    document.getElementById('resultPrompt').textContent = spreadHand[idx];
+    const panel = document.getElementById('resultPanel');
+    panel.classList.remove('show'); void panel.offsetWidth; panel.classList.add('show');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.querySelectorAll('.tarot-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tarot-card')[idx].classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+// ACTION HANDLERS
+// ══════════════════════════════════════════════════════
+function doAction() {
+    if (!currentDepth) return;
+    if (currentMode === 'card') drawCard();
+    else if (currentMode === 'spinner') spinWheel();
+    else if (currentMode === 'dice') rollDice();
+    else if (currentMode === 'spread') dealSpread();
+}
+
+function doPass() { doAction(); }
+
+function doReset() {
+    if (!currentDepth) return;
+    deck = shuffle([...Array(prompts[currentDepth].length).keys()]);
+    currentCard = null; cardRevealed = false;
+    renderMode();
+}
+
+function toggleFacil() { document.getElementById('facilPanel').classList.toggle('open'); }
+</script>
+</body>
+</html>
